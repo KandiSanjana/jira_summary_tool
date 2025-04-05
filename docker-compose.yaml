@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  jira_tool:
+    build: .  # build from Dockerfile in current directory
+    image: jira_summary_tool:latest
+    environment:
+      JIRA_SERVER: "https://yourdomain.atlassian.net"
+      JIRA_USER: "${JIRA_USER}"           # taken from host env, for example
+      JIRA_API_TOKEN: "${JIRA_API_TOKEN}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      MODE: "production"
+    # The command can be overridden when running `docker-compose run`
+    # For example: docker-compose run jira_tool --project MYPROJ
