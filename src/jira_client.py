@@ -6,15 +6,19 @@ def connect_jira(cfg):
     auth = (cfg.jira_user, cfg.jira_api_token)
     options = {"server": cfg.jira_server}
     jira = JIRA(options=options, basic_auth=auth)
+    projects = jira.projects()
+    print("Projects found are: ", projects)
+    print("Authenticated user:", jira.current_user())
+    print("Connection to JIRA successfull!")
     return jira
 
 def fetch_issues_by_epic(jira, epic_key):
-    jql = f'"Epic Link" = {epic_key} AND assignee = currentUser()'
+    jql = f'"Epic Link" = {epic_key}'
     issues = jira.search_issues(jql, maxResults=False)  # maxResults=False to fetch all
     return issues
 
 def fetch_issues_by_project(jira, project_key):
-    jql = f'project = {project_key} AND assignee = currentUser()'
+    jql = f'project = {project_key}'
     issues = jira.search_issues(jql, maxResults=False)
     return issues
 

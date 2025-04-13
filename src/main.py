@@ -1,6 +1,6 @@
 # main.py
 import sys, argparse, logging
-from jira_summary_tool import config, logger, jira_client, summarizer, report
+from src import config, logger, jira_client, summarizer, report
 
 def main():
     cfg = config.load_config()
@@ -27,17 +27,18 @@ def main():
         
         # Summarize each issue
         summaries = []
+        text = ""
         for issue in issues:
-            text = jira_client.extract_issue_text(issue)
-            high_level, detailed = summarizer.summarize_issue(text, cfg)
-            summaries.append((issue.key, high_level, detailed))
-            log.debug(f"Summarized issue {issue.key}: {high_level[:50]}...")
+            text = text + jira_client.extract_issue_text(issue)
+        high_level = summarizer.summarize_issue(text, cfg)
+        # summaries.append((issue.key, high_level, detailed))
+        # log.debug(f"Summarized issue {issue.key}: {high_level[:50]}...")
         
         # Generate reports
-        html_path = report.generate_html_dashboard(issues, summaries, cfg)
-        pdf_path = report.generate_pdf_report(issues, summaries, cfg)
+        html_path = report.generate_html_dashboard(issues, high_level, cfg)
+        # pdf_path = report.generate_pdf_report(issues, summaries, cfg)
         log.info(f"📊 Dashboard generated: {html_path}")
-        log.info(f"📝 PDF report generated: {pdf_path}")
+        # log.info(f"📝 PDF report generated: {pdf_path}")
         log.info("✅ Jira summarization completed successfully!")
     except Exception as e:
         log.error(f"Error: {e}")

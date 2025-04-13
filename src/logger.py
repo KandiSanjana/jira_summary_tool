@@ -15,7 +15,7 @@ def setup_logging(cfg):
     console_handler.setFormatter(console_fmt)
     
     # File handler with level DEBUG, output to a log file
-    file_handler = logging.FileHandler(f"{cfg.output_dir}/app.log", mode='w')
+    file_handler = logging.FileHandler(f"app.log", mode='w')
     file_handler.setLevel(logging.DEBUG)
     file_fmt = logging.Formatter(fmt="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
                                  datefmt="%Y-%m-%d %H:%M:%S")

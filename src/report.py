@@ -35,25 +35,31 @@ def generate_html_dashboard(issues, summaries, cfg):
       }});
     </script>
     """)
-    # List issues with summaries
-    html_parts.append("<h2>Issue Summaries</h2><ul>")
-    for issue, (issue_key, high_level, detailed) in zip(issues, summaries):
-        html_parts.append(f"<li><b>{issue_key} - {issue.fields.summary}</b> ({issue.fields.status.name})")
-        html_parts.append(f"<p><i>High-level:</i> {high_level}</p>")
-        html_parts.append(f"<p><i>Detailed:</i> {detailed}</p></li>")
-    html_parts.append("</ul>")
-    html_parts.append("</body></html>")
-    html_content = "".join(html_parts)
+    # # List issues with summaries
+    
+    # html_parts.append("<h2>Issue Summaries</h2><ul>")
+    # for issue, (issue_key, high_level, detailed) in zip(issues, summaries):
+    #     html_parts.append(f"<li><b>{issue_key} - {issue.fields.summary}</b> ({issue.fields.status.name})")
+    #     html_parts.append(f"<p><i>High-level:</i> {high_level}</p>")
+    #     html_parts.append(f"<p><i>Detailed:</i> {detailed}</p></li>")
+    # html_parts.append("</ul>")
+    # html_parts.append("</body></html>")
+    # html_content = "".join(html_parts)
+    # print(f"HTML content is {html_content}")
     # Write to an HTML file
-    output_path = os.path.join(cfg.output_dir, "dashboard.html")
-    with open(output_path, "w") as f:
-        f.write(html_content)
+    output_path = os.path.join(cfg.output_dir, "summary.txt")
+    # print(f"HTML output path {output_path}")
+    try:
+        with open(output_path, "w") as f:
+            f.write(summaries)
+    except Exception as e:
+        print(f"Cannot write to html file, error: {e}")
     return output_path
 
 def generate_pdf_report(issues, summaries, cfg):
     # Reuse the dashboard HTML (or generate a separate print-friendly HTML)
     html_path = generate_html_dashboard(issues, summaries, cfg)
-    pdf_path = os.path.join(cfg.output_dir, "report.pdf")
+    # pdf_path = os.path.join(cfg.output_dir, "report.pdf")
     # Convert the HTML file to PDF
-    pdfkit.from_file(html_path, pdf_path)
-    return pdf_path
+    # pdfkit.from_file(html_path, pdf_path)
+    return html_path
