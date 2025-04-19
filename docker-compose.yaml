@@ -1,15 +1,34 @@
 services:
-  jira_cli_tool:
-    build: .  # build from Dockerfile in current directory
+  jira_summary_tool:
+    container_name: jira_summary_tool
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: jira_summary_tool:latest
-    environment:
-      JIRA_SERVER: "xxx"
-      JIRA_USER: "xxx"           # taken from host env, for example
-      JIRA_API_TOKEN: "xxx"
-      COHERE_API_KEY: "xxx"
-      MODE: "production"
+    
+    # Load environment variables from .env file
+    env_file:
+      - .env
+    
+    # Volume mappings
     volumes:
-      - ./outputs:/outputs
-      # - ./jira_summary/logs:/app/logs
-    # The command can be overridden when running `docker-compose run`
-    # For example: docker-compose run jira_cli_tool --project MYPROJ
+      - type: bind
+        source: ./outputs
+        target: /outputs
+        read_only: false
+    
+    # Container configuration
+    working_dir: /app
+    
+    # Health check configuration
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    
+    # Usage:
+    # 1. Build and start: docker-compose up
+    # 2. Run with project: docker-compose run jira_summary_tool --project MYPROJ
+    # 3. Override env: docker-compose run -e MODE=development jira_summary_tool

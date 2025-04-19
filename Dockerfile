@@ -1,20 +1,50 @@
-# Dockerfile
-FROM python:3.11-slim-buster
+# Build stage
+FROM python:3.11-slim-buster as builder
 
-# Install system dependencies (wkhtmltopdf for PDF generation)
-RUN apt-get update && apt-get install -y --no-install-recommends wkhtmltopdf \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
+# Create and activate virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
+# Copy setup files and dependencies
+COPY setup.py requirements.txt ./
 COPY src/ src/
 
-# Set default environment (can be overridden at runtime)
-ENV PYTHONUNBUFFERED=1
+# Install the package using setuptools
+RUN pip install --no-cache-dir .
 
-# Entrypoint to run the CLI (by default, will show help without arguments)
-ENTRYPOINT ["python", "-m", "src.main"]
+# Final stage
+FROM python:3.11-slim-buster
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wkhtmltopdf \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser
+USER appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy application source for runtime (not strictly needed, but optional for CLI debugging/logging)
+COPY --chown=appuser:appuser src/ src/
+COPY --chown=appuser:appuser outputs/ outputs/
+COPY --chown=appuser:appuser tests/ tests/
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
+
+# Run the CLI command
+# CMD ["jira_summary_tool", "project", "JST"]
+CMD ["sh", "-c", "jira_summary_tool && while true; do sleep 30; done"]

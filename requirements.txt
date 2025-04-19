@@ -1,6 +1,7 @@
-jira==3.6.0
-cohere==4.34.0
-rich==13.7.1
-pdfkit==1.0.0
-pytest==8.2.0
-pytest-mock==3.14.0
+jira
+cohere
+rich
+pdfkit
+pytest
+pytest-mock
+click
